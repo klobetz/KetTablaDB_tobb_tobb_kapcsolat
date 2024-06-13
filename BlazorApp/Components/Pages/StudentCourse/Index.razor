@@ -1,0 +1,15 @@
+﻿@page "/studentcourse"
+@using BlazorApp.Model
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject BlazorApp.Data.MyDBContext DB
+@rendermode InteractiveServer
+<h3>Index</h3>
+
+<QuickGrid Class="table" Items="DB.students">
+    <PropertyColumn Title="Tanuló" Property="s=>s.Name"/>
+    <PropertyColumn Title="Kurzusok" Property="k=>k.Name"/>
+</QuickGrid>
+
+@code {
+    
+}
