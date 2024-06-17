@@ -1,15 +1,70 @@
 ﻿@page "/studentcourse"
 @using BlazorApp.Model
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.EntityFrameworkCore
 @inject BlazorApp.Data.MyDBContext DB
 @rendermode InteractiveServer
+
 <h3>Index</h3>
 
-<QuickGrid Class="table" Items="DB.students">
-    <PropertyColumn Title="Tanuló" Property="s=>s.Name"/>
-    <PropertyColumn Title="Kurzusok" Property="k=>k.Name"/>
-</QuickGrid>
+@if(studentList == null || courseList == null)
+{
+   <p>Loading...</p>
+}
+else
+{
+    <QuickGrid Class="table" Items="DB.students">
+        <PropertyColumn Title="Student" Property="s=>s.Name"/>
+        <TemplateColumn Title="Course">
+            <div>
+                @foreach (var course in context.Courses)
+                {
+                    <p>@course.CourseName</p>
+                }
+            </div>
+        </TemplateColumn>
+    </QuickGrid>
+
+    <h3 class="mt-5 ">Student</h3>
+    @foreach (var student in studentList)
+    {
+        <hr/>
+        <span class="card-header-tabs fs-5">
+            @student.Name:<br/>
+        </span>
+        
+        foreach (var coutse in student.Courses)
+        {
+            <span class="card-body">
+                @coutse.CourseName<br/>
+            </span>
+        }       
+    }
+    <h3 class="mt-5">Course</h3>
+    @foreach (var course in courseList)
+    {
+        <hr />
+        <span class="card-header-tabs fs-5">
+            @course.CourseName:<br />
+        </span>
+
+        foreach (var students in course.Students)
+        {
+            <span class="card-body">
+                @students.Name<br />
+            </span>
+        }
+    }
+}
+
 
 @code {
-    
+    private List<Student>? studentList;
+    private List<Course>? courseList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        studentList = await DB.students.Include(x => x.Courses).ToListAsync();
+        courseList = await DB.courses.Include(x => x.Students).ToListAsync();
+    }
 }
