@@ -1,0 +1,22 @@
+﻿@page "/students"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject BlazorApp.Data.MyDBContext DB
+@using BlazorApp.Model
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="students/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="DB.students">
+    <PropertyColumn Property="student => student.Name" />
+
+    <TemplateColumn Context="student">
+        <a href="@($"students/edit?studentid={student.StudentId}")">Edit</a> |
+        <a href="@($"students/details?studentid={student.StudentId}")">Details</a> |
+        <a href="@($"students/delete?studentid={student.StudentId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>

@@ -1,0 +1,78 @@
+﻿@page "/addstudentcourse"
+@using BlazorApp.Model
+@using Microsoft.EntityFrameworkCore
+@inject BlazorApp.Data.MyDBContext DB
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+
+<h3>Add Student to Course</h3>
+
+@if (studentList==null || courseList== null )
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="col-3">
+        Student:
+        <select @bind="selectStudentId">
+            <option>Select Student</option>
+            @foreach (var item in studentList)
+            {
+                <option value="@item.StudentId">@item.Name</option>
+            }
+        </select>
+        <p>@selectStudentId</p>
+    </div>
+    <div class="col-3">
+        Course:
+        <select @bind="selectCourseId">
+            <option>Select Course</option>
+            @foreach (var item in courseList)
+            {
+                <option value="@item.CourseId">@item.CourseName</option>
+            }
+        </select>
+        <p>@selectCourseId</p>
+
+        <button class="btn btn-primary" @onclick="HandleValidSubmit">Save</button>
+    </div>
+    <p class="text-danger">@errorMessage</p>
+}
+
+
+@code {
+    private List<Student> studentList;
+    private List<Course> courseList;
+
+    private int selectStudentId { get; set; }
+    private int selectCourseId { get; set; }
+
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        studentList = await DB.students.ToListAsync();
+        courseList = await DB.courses.ToListAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var student = await DB.students.FirstOrDefaultAsync(s => s.StudentId == selectStudentId);
+        var course = await DB.courses.FirstOrDefaultAsync(s => s.CourseId == selectCourseId);
+        if (student != null && course != null)
+        {
+            if (student.Courses.Any(c=>c.CourseId==selectCourseId))
+            {
+                errorMessage = "This Student is already enrolled to this Course!";
+            }
+            else
+            {
+                student.Courses.Add(course);
+                await DB.SaveChangesAsync();
+                NavManager.NavigateTo("studentcourse");
+            }
+
+        }
+    }
+}

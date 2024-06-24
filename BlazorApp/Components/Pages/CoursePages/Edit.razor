@@ -1,0 +1,86 @@
+﻿@page "/Courses/edit"
+@inject BlazorApp.Data.MyDBContext DB
+@using BlazorApp.Model
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>Course</h4>
+<hr />
+@if (newCourse is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="newCourse" OnValidSubmit="UpdateCourse" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="newCourse.CourseId" value="@newCourse.CourseId" />
+                <div class="mb-3">
+                    <label for="coursename" class="form-label">CourseName:</label>
+                    <InputText id="coursename" @bind-Value="newCourse.CourseName" class="form-control" />
+                    <ValidationMessage For="() => newCourse.CourseName" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/courses">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int CourseId { get; set; }
+
+    [SupplyParameterFromForm]
+    public Course? newCourse { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        newCourse ??= await DB.courses.FirstOrDefaultAsync(m => m.CourseId == CourseId);
+
+        if (newCourse is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateCourse()
+    {
+        DB.Attach(newCourse!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!CourseExists(newCourse!.CourseId))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/courses");
+    }
+
+    bool CourseExists(int courseid)
+    {
+        return DB.courses.Any(e => e.CourseId == courseid);
+    }
+}

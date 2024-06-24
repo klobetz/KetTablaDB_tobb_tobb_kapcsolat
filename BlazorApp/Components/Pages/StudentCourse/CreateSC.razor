@@ -1,0 +1,73 @@
+﻿@page "/creatsc"
+@using BlazorApp.Model
+@inject BlazorApp.Data.MyDBContext DB
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+<h3>CreateSC</h3>
+
+@if (newCourse is null || newStudent is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h4>Add Student</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm Context="addstudent" method="post" Model="newStudent" OnValidSubmit="AddStudent" FormName="createStudent" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="newStudent.Name" class="form-control" />
+                    <ValidationMessage For="() => newStudent.Name" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </EditForm>
+        </div>
+    </div>
+
+    <h4 class="mt-5">Add Course</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm Context="addcourse" method="post" Model="newCourse" OnValidSubmit="AddCourse" FormName="createCourse" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="newCourse.CourseName" class="form-control" />
+                    <ValidationMessage For="() => newCourse.CourseName" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </EditForm>
+        </div>
+    </div>
+
+    
+    <div>
+        <a href="/studentcourse">Back to List</a>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromForm]
+    public Student newStudent { get; set; } = new();
+
+    [SupplyParameterFromForm]
+    public Course newCourse { get; set; } = new();
+
+    public async Task AddStudent()
+    {
+        DB.students.Add(newStudent);
+        await DB.SaveChangesAsync();
+        NavManager.NavigateTo("/studentcourse");
+    }
+    public async Task AddCourse()
+    {
+        DB.courses.Add(newCourse);
+        await DB.SaveChangesAsync();
+        NavManager.NavigateTo("/studentcourse");
+    }
+}
