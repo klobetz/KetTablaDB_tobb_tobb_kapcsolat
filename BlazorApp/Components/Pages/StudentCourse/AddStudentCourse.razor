@@ -13,40 +13,41 @@
 }
 else
 {
-    <div class="col-3">
-        Student:
-        <select @bind="selectStudentId">
-            <option>Select Student</option>
-            @foreach (var item in studentList)
-            {
-                <option value="@item.StudentId">@item.Name</option>
-            }
-        </select>
-        <p>@selectStudentId</p>
-    </div>
-    <div class="col-3">
+    <EditForm Model="this" FormName="selectcourseStudnt" OnValidSubmit="HandleValidSubmit" Enhance>
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+
+        <div class="col-3">
+            Student:
+            <InputSelect @bind-Value="selectStudentId" class="form-select form-select-sm">
+                <option>Select Student</option>
+                @foreach (var item in studentList)
+                {
+                    <option value="@item.StudentId">@item.Name</option>
+                }
+            </InputSelect>            
+        </div>
+
+        <div class="col-3">
         Course:
-        <select @bind="selectCourseId">
+        <InputSelect @bind-Value="selectCourseId" class="form-select form-select-sm">
             <option>Select Course</option>
             @foreach (var item in courseList)
             {
                 <option value="@item.CourseId">@item.CourseName</option>
             }
-        </select>
-        <p>@selectCourseId</p>
-
-        <button class="btn btn-primary" @onclick="HandleValidSubmit">Save</button>
-    </div>
+        </InputSelect>       
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </EditForm>            
     <p class="text-danger">@errorMessage</p>
 }
-
-
 @code {
     private List<Student> studentList;
     private List<Course> courseList;
 
-    private int selectStudentId { get; set; }
-    private int selectCourseId { get; set; }
+    private int? selectStudentId { get; set; }
+    private int? selectCourseId { get; set; }
 
     private string errorMessage;
 
